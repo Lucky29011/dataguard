@@ -1,0 +1,13 @@
+
+archivelog difference
+=======================
+select arch.thread# "Thread",arch.sequence# "last sequence received",appl.sequence# "last sequence applied",(arch.sequence#-appl.sequence#) "difference" from (select thread#,sequence# from v$archived_log where (thread#,first_time) in (select thread#,max(first_time) from v$archived_log group by thread#)) arch,(select thread#,sequence# from v$log_history where (thread#,first_time) in (select thread#,max(first_time) from v$log_history group by thread#)) appl where (arch.thread# = appl.thread#) order by 1;
+
+
+display archive log sequence
+=================================
+select thread#,max(sequence#) "last primary seq generated" from v$archived_log val,v$database vdb where val.resetlogs_change#=vdb.resetlogs_change# group by thread# order by 1;
+
+MRP status
+===========
+select process,status,thread#,sequence#,block#,blocks from v$managed_standby where process='MRP0';
